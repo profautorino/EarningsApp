@@ -24,8 +24,7 @@ public class QuarterlyEarningsApp extends JFrame {
         setLocationRelativeTo(null); // Center the window
 
         // Set up the menu bar
-        EarningsAppMenuBar menuBar = new EarningsAppMenuBar();
-        setJMenuBar(menuBar);
+        setJMenuBar(createMenuBar());
 
         // JTable MUST use a table model to display data. 
         // The table model is responsible for providing the data to the JTable.
@@ -54,13 +53,70 @@ public class QuarterlyEarningsApp extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
     }
 
-    private class EarningsAppMenuBar extends JMenuBar {
-        public EarningsAppMenuBar() {
-            JMenu fileMenu = new JMenu("File");
-            JMenuItem exitItem = new JMenuItem("Exit");
-            exitItem.addActionListener(e -> System.exit(0));
-            fileMenu.add(exitItem);
-            add(fileMenu);
-        }
+    private static JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        // File menu
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem newItem = new JMenuItem("New");
+        JMenuItem openItem = new JMenuItem("Open");
+        JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem saveAsItem = new JMenuItem("Save As");
+        JMenuItem copyItem = new JMenuItem("Copy");
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.addActionListener(e -> System.exit(0));
+        fileMenu.add(newItem);
+        fileMenu.add(openItem);
+        fileMenu.addSeparator();
+        fileMenu.add(saveItem);
+        fileMenu.add(saveAsItem);
+        fileMenu.addSeparator();
+        fileMenu.add(copyItem);
+        fileMenu.add(exitItem);
+        menuBar.add(fileMenu);
+
+        // Edit menu
+        JMenu editMenu = new JMenu("Edit");
+        JMenuItem addItem = new JMenuItem("Add company");
+        JMenuItem editItem = new JMenuItem("Edit company");
+        JMenuItem deleteItem = new JMenuItem("Delete company");
+        JMenuItem undoItem = new JMenuItem("Undo");
+        JMenuItem redoItem = new JMenuItem("Redo");
+        
+        editMenu.add(undoItem);
+        editMenu.add(redoItem);
+        editMenu.addSeparator();
+        menuBar.add(editMenu);
+        editMenu.add(addItem);
+        editMenu.add(editItem);
+        editMenu.add(deleteItem);
+
+        // View menu
+        JMenu viewMenu = new JMenu("View");
+        JMenu displayMenu = new JMenu("Currency display type");
+        JMenuItem zerosItem = new JMenuItem("000");
+        JMenuItem thousandsItem = new JMenuItem("Thousands");
+        JMenuItem millionsItem = new JMenuItem("Millions");
+        displayMenu.add(millionsItem);
+        displayMenu.add(zerosItem);
+        displayMenu.add(thousandsItem);
+        viewMenu.add(displayMenu);
+        JMenu sortMenu = new JMenu("Sort by");
+        JMenuItem sortByNameItem = new JMenuItem("Company Name");
+        JMenuItem sortByQ1Item = new JMenuItem("Quarter 1");
+        JMenuItem sortByQ2Item = new JMenuItem("Quarter 2");
+        JMenuItem sortByQ3Item = new JMenuItem("Quarter 3");
+        JMenuItem sortByQ4Item = new JMenuItem("Quarter 4");
+        JMenuItem sortByYearlyItem = new JMenuItem("Yearly Earnings");
+        sortMenu.add(sortByNameItem);
+        sortMenu.add(sortByQ1Item);
+        sortMenu.add(sortByQ2Item);
+        sortMenu.add(sortByQ3Item);
+        sortMenu.add(sortByQ4Item);
+        sortMenu.add(sortByYearlyItem);
+        viewMenu.add(sortMenu);
+        menuBar.add(viewMenu);
+
+        return menuBar;
     }
 }
