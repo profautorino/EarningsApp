@@ -1,9 +1,6 @@
 # Quarterly Earnings App
 
-A Java Swing desktop application for organizing company earnings by sector and
-quarter. The table supports editing, sorting, undo and redo, CSV file
-operations, and copying, cutting, or pasting company rows. A tree alongside
-the table groups companies by sector.
+A Java Swing desktop application for organizing company earnings. A JTree alongside the table groups companies by sector as a directory index.
 
 ## Run
 
