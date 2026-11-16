@@ -1,6 +1,6 @@
 # Quarterly Earnings App
 
-A Java Swing desktop application for organizing company earnings. A JTree alongside the table groups companies by sector as a directory index.
+A Java Swing desktop application for organizing company earnings. A JTree alongside the JTable groups companies by sector as a directory index.
 
 ## Run
 
