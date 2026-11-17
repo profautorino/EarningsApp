@@ -5,7 +5,8 @@ import javax.swing.SwingUtilities;
 
 /**
  * Provides the application's entry point and initializes the Swing interface
- * on the event dispatch thread.
+ * on the event dispatch thread. No instance is needed; start the application
+ * by invoking {@link #main(String[])}.
  */
 public class Main {
     /**

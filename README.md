@@ -101,7 +101,7 @@ header, menus, and model-change listener.
 
 ### `Main.java` — Main
 
-The application entry point. `main()` creates an empty
-`EarningsTableModel` and constructs and displays `QuarterlyEarningsApp` on
-Swing's event dispatch thread. The `args` parameter is reserved for
-command-line arguments and is currently unused.
+The application entry point.
+`main()` creates an empty `EarningsTableModel` and constructs and displays
+`QuarterlyEarningsApp` on Swing's event dispatch thread. The `args` parameter
+is reserved for command-line arguments and is currently unused.

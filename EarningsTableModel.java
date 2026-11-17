@@ -99,6 +99,32 @@ public class EarningsTableModel extends AbstractTableModel {
     }
 
     /**
+     * Gets the row index of a company record.
+     *
+     * @param company the company record to locate
+
+     * @return the integer row index of the company, or null if it doesn't exist
+     */
+    public Integer getRowIndexByCompanyEarnings(CompanyEarnings company) {
+        company = (data.contains(company)) ? company : null;
+        return data.indexOf(company);
+    }
+
+    /**
+     * Gets the row index of a company record by company name.
+     *
+     * @param companyName the company record to locate
+
+     * @return the integer row index of the company, or null if it doesn't exist
+     */
+    public Integer getRowIndexByCompanyName(String companyName) {
+        return data.stream()
+                .map(CompanyEarnings::getCompanyName)
+                .collect(Collectors.toList())
+                .indexOf(companyName);
+    }
+
+    /**
      * Gets an immutable list containing the current company records.
      *
      * @return an unmodifiable snapshot of the model's company list

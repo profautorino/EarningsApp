@@ -1,6 +1,7 @@
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -13,13 +14,13 @@ public class CompanyTreeModel extends DefaultTreeModel {
     private final Map<CompanyEarnings, DefaultMutableTreeNode> companyNodes = new IdentityHashMap<>();
 
     /**
-     * Creates a tree rooted at "All Companies" and populates it from the table
-     * model's current records.
+     * Creates a tree rooted at given String rootNodeName and populates it from the table model's current records.
      *
      * @param earningsModel the source of company records to display
+     * @param rootNodeName  the name of the root node; header of JTree
      */
-    public CompanyTreeModel(EarningsTableModel earningsModel) {
-        super(new DefaultMutableTreeNode("All Companies"));
+    public CompanyTreeModel(EarningsTableModel earningsModel, String rootNodeName) {
+        super(new DefaultMutableTreeNode(rootNodeName));
         populateCompanyTree(earningsModel);
     }
 
@@ -35,7 +36,7 @@ public class CompanyTreeModel extends DefaultTreeModel {
             nodeChanged(companyNode);
         }
     }
-
+    
     /**
      * Rebuilds the tree from the table model, refreshing sector groupings and
      * company nodes after records are added, removed, or changed.
@@ -49,6 +50,11 @@ public class CompanyTreeModel extends DefaultTreeModel {
         populateCompanyTree(earningsModel);
         reload(root);
     }
+
+    public CompanyEarnings getCompanyEarningsFromNode(DefaultMutableTreeNode node) {
+        return (CompanyEarnings) node.getUserObject();
+    }
+
 
     /**
      * Adds each company beneath a sector node, preserving sector insertion
@@ -69,10 +75,9 @@ public class CompanyTreeModel extends DefaultTreeModel {
                         root.add(node);
                         return node;
                     });
-            DefaultMutableTreeNode companyNode =
-                    new DefaultMutableTreeNode(company.getCompanyName());
+            DefaultMutableTreeNode companyNode = new DefaultMutableTreeNode(company.getCompanyName());
             sectorNode.add(companyNode);
             companyNodes.put(company, companyNode);
         }
-    }
+    } 
 }

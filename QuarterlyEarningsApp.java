@@ -30,6 +30,7 @@ import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * Main Swing window for viewing and editing company quarterly earnings.
@@ -37,7 +38,7 @@ import javax.swing.table.TableRowSorter;
  * clipboard actions, sorting, undo/redo, and currency display settings.
  */
 public class QuarterlyEarningsApp extends JFrame {
-    private final EarningsTableModel model;
+    private final EarningsTableModel earningsModel;
     private final CompanyTreeModel treeModel;
     private final JTable earningsTable;
     private Path currentFile;
@@ -49,8 +50,8 @@ public class QuarterlyEarningsApp extends JFrame {
      * @param model the table model whose company records are displayed
      */
     public QuarterlyEarningsApp(EarningsTableModel model) {
-        this.model = model;
-        this.treeModel = new CompanyTreeModel(model);
+        this.earningsModel = model;
+        this.treeModel = new CompanyTreeModel(model, "All Companies");
 
         setTitle("Corporate Quarterly Earnings");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -67,6 +68,12 @@ public class QuarterlyEarningsApp extends JFrame {
                 treeModel.updateCompanyName(model.getCompanyAt(row));
             } else if (column == 1) {
                 treeModel.refresh(model);
+            }
+        });
+        companyTree.addTreeSelectionListener(e -> {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) companyTree.getLastSelectedPathComponent();
+            if (selectedNode != null) {
+                selectRowInTable(selectedNode);
             }
         });
 
@@ -135,8 +142,8 @@ public class QuarterlyEarningsApp extends JFrame {
         JMenuItem addItem = new JMenuItem("Add company");
         JMenuItem editItem = new JMenuItem("Edit company");
         JMenuItem deleteItem = new JMenuItem("Delete company");
-        undoItem.addActionListener(event -> model.undo());
-        redoItem.addActionListener(event -> model.redo());
+        undoItem.addActionListener(event -> earningsModel.undo());
+        redoItem.addActionListener(event -> earningsModel.redo());
         cutItem.addActionListener(event -> cutSelectedCompanies());
         copyItem.addActionListener(event -> copySelectedCompanies());
         pasteItem.addActionListener(event -> pasteCompanies());
@@ -190,7 +197,7 @@ public class QuarterlyEarningsApp extends JFrame {
     private void addSortItem(JMenu menu, String title, int modelColumn) {
         JMenuItem item = new JMenuItem(title);
         item.addActionListener(event -> {
-            model.sortByColumn(modelColumn);
+            earningsModel.sortByColumn(modelColumn);
             if (earningsTable.getRowSorter() instanceof TableRowSorter<?>) {
                 TableRowSorter<?> sorter = (TableRowSorter<?>) earningsTable.getRowSorter();
                 sorter.setSortKeys(List.of(new RowSorter.SortKey(modelColumn, SortOrder.ASCENDING)));
@@ -200,11 +207,10 @@ public class QuarterlyEarningsApp extends JFrame {
     }
 
     /**
-     * Starts a new empty earnings list after asking before discarding existing
-     * records.
+     * Starts a new empty earnings list after asking before discarding existing records.
      */
     private void newFile() {
-        if (model.getRowCount() > 0) {
+        if (earningsModel.getRowCount() > 0) {
             int answer = JOptionPane.showConfirmDialog(
                     this, "Clear the current earnings list?", "New",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -212,7 +218,7 @@ public class QuarterlyEarningsApp extends JFrame {
                 return;
             }
         }
-        model.replaceCompanies(List.of());
+        earningsModel.replaceCompanies(List.of());
         currentFile = null;
     }
 
@@ -233,7 +239,7 @@ public class QuarterlyEarningsApp extends JFrame {
         }
         Path selected = selectedPath(dialog);
         try {
-            model.replaceCompanies(CsvIO.read(selected));
+            earningsModel.replaceCompanies(CsvIO.read(selected));
             currentFile = selected;
         } catch (IOException | RuntimeException e) {
             showError("Could not open CSV file: " + e.getMessage());
@@ -290,7 +296,7 @@ public class QuarterlyEarningsApp extends JFrame {
      */
     private boolean writeFile(Path path) {
         try {
-            CsvIO.write(path, model.getCompanies());
+            CsvIO.write(path, earningsModel.getCompanies());
             return true;
         } catch (IOException | RuntimeException e) {
             showError("Could not save CSV file: " + e.getMessage());
@@ -331,7 +337,7 @@ public class QuarterlyEarningsApp extends JFrame {
     private void addCompany() {
         CompanyEarnings company = showCompanyDialog(null, "Add Company");
         if (company != null) {
-            model.addCompany(company);
+            earningsModel.addCompany(company);
         }
     }
 
@@ -346,10 +352,10 @@ public class QuarterlyEarningsApp extends JFrame {
             return;
         }
         int modelRow = earningsTable.convertRowIndexToModel(viewRow);
-        CompanyEarnings original = model.getCompanyAt(modelRow);
+        CompanyEarnings original = earningsModel.getCompanyAt(modelRow);
         CompanyEarnings edited = showCompanyDialog(original, "Edit Company");
         if (edited != null) {
-            model.setCompanyAt(modelRow, edited);
+            earningsModel.setCompanyAt(modelRow, edited);
         }
     }
 
@@ -413,7 +419,7 @@ public class QuarterlyEarningsApp extends JFrame {
                 this, "Delete " + selected.length + " selected company row(s)?",
                 "Delete Companies", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (answer == JOptionPane.YES_OPTION) {
-            model.removeCompanies(selected);
+            earningsModel.removeCompanies(selected);
         }
     }
 
@@ -446,7 +452,7 @@ public class QuarterlyEarningsApp extends JFrame {
         }
         StringBuilder text = new StringBuilder();
         for (int viewRow : rows) {
-            CompanyEarnings company = model.getCompanyAt(earningsTable.convertRowIndexToModel(viewRow));
+            CompanyEarnings company = earningsModel.getCompanyAt(earningsTable.convertRowIndexToModel(viewRow));
             text.append(CsvIO.formatRecord(List.of(
                     company.getCompanyName(),
                     company.getSector(),
@@ -477,7 +483,7 @@ public class QuarterlyEarningsApp extends JFrame {
             return;
         }
         if (copySelectedCompanies()) {
-            model.removeCompanies(rows);
+            earningsModel.removeCompanies(rows);
         }
     }
 
@@ -529,9 +535,9 @@ public class QuarterlyEarningsApp extends JFrame {
             if (companies.isEmpty()) {
                 return;
             }
-            List<CompanyEarnings> combined = new ArrayList<>(model.getCompanies());
+            List<CompanyEarnings> combined = new ArrayList<>(earningsModel.getCompanies());
             combined.addAll(companies);
-            model.replaceCompanies(combined);
+            earningsModel.replaceCompanies(combined);
         } catch (HeadlessException | IllegalStateException | java.awt.datatransfer.UnsupportedFlavorException
                 | IOException | NumberFormatException e) {
             showError("Could not paste company data: " + e.getMessage());
@@ -566,10 +572,10 @@ public class QuarterlyEarningsApp extends JFrame {
             }
         };
         renderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        for (int column = 2; column < model.getColumnCount(); column++) {
+        for (int column = 2; column < earningsModel.getColumnCount(); column++) {
             earningsTable.getColumnModel().getColumn(column).setCellRenderer(renderer);
             earningsTable.getColumnModel().getColumn(column).setHeaderValue(
-                    model.getColumnName(column) + unit);
+                    earningsModel.getColumnName(column) + unit);
         }
         earningsTable.revalidate();
         earningsTable.repaint();
@@ -583,5 +589,19 @@ public class QuarterlyEarningsApp extends JFrame {
      */
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Earnings App", JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Selects the row in the JTable based on the node selected in CompanyTreeModel.
+     *
+     * @param node the node selected in the CompanyTreeModel
+     */
+    private void selectRowInTable(DefaultMutableTreeNode node) {
+        String companyName =  (String) node.getUserObject();
+        int modelRow = earningsModel.getRowIndexByCompanyName(companyName);
+        int viewRow = earningsTable.convertRowIndexToView(modelRow);
+        if (viewRow != -1) {
+            earningsTable.setRowSelectionInterval(viewRow, viewRow);
+        }
     }
 }
