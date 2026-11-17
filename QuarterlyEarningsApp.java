@@ -72,7 +72,7 @@ public class QuarterlyEarningsApp extends JFrame {
         });
         companyTree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) companyTree.getLastSelectedPathComponent();
-            if (selectedNode != null) {
+            if (selectedNode != null && selectedNode.isLeaf()) {
                 selectRowInTable(selectedNode);
             }
         });
@@ -597,7 +597,7 @@ public class QuarterlyEarningsApp extends JFrame {
      * @param node the node selected in the CompanyTreeModel
      */
     private void selectRowInTable(DefaultMutableTreeNode node) {
-        String companyName =  (String) node.getUserObject();
+        String companyName = (String) node.getUserObject();
         int modelRow = earningsModel.getRowIndexByCompanyName(companyName);
         int viewRow = earningsTable.convertRowIndexToView(modelRow);
         if (viewRow != -1) {

@@ -75,7 +75,9 @@ public class CompanyTreeModel extends DefaultTreeModel {
                         return node;
                     });
             DefaultMutableTreeNode companyNode = new DefaultMutableTreeNode(company.getCompanyName());
+            companyNode.setAllowsChildren(false);
             sectorNode.add(companyNode);
+            
             companyNodes.put(company, companyNode);
         }
     } 
